@@ -8,9 +8,8 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-    // 开发环境用 10.0.2.2（Android 模拟器访问宿主机 localhost）
-    // 生产环境替换为正式域名
-    private const val BASE_URL = "http://10.0.2.2:8000/"
+    // Android 真机/模拟器 → 生产环境（Vercel rewrite /api/* → VPS 后端）
+    private const val BASE_URL = "https://hermesapp.go2china.space/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
