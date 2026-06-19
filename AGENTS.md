@@ -6,7 +6,7 @@
 
 ### Issue tracker
 
-GitHub Issues on [JTCAO515/vp-hermes](https://github.com/JTCAO515/vp-hermes). External PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
+GitHub Issues on [JTCAO515/VP-Hermes-APK](https://github.com/JTCAO515/VP-Hermes-APK). External PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

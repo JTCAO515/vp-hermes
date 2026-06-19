@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import UserListPage from './pages/UserListPage';
 import UserDetailPage from './pages/UserDetailPage';
 import Layout from './components/Layout';
+import Header from './components/Header';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
@@ -35,32 +36,35 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/users"
-        element={
-          <ProtectedRoute>
-            <UserListPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/users/:id"
-        element={
-          <ProtectedRoute>
-            <UserDetailPage />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+    <div style={{ paddingTop: 48 }}>
+      <Header />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <UserListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <ProtectedRoute>
+              <UserDetailPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </div>
   );
 }
