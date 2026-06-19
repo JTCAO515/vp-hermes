@@ -1,8 +1,8 @@
-# VisePanda v0.1.0 — Handoff Document
+# VisePanda v0.2.0 — Handoff Document
 
-> **Last Updated:** 2026-06-18
-> **Status:** ⏸️ 已暂停 — 架构完成（后端+管理后台+前端Vercel）已上线，Android APK 未完成编译
-> **Repo:** `git@github.com:JTCAO515/vp-hermes.git` (master)
+> **Last Updated:** 2026-06-19
+> **Status:** 🟢 合并完成 — Android 代码更新至 v0.2.6（visepanda-android-hermes），backend + admin 保留
+> **Repo:** `git@github.com:JTCAO515/vp-hermes-APK.git` (master)
 > **Live URL:** https://hermesapp.go2china.space (Vercel前端 + /api/* → VPS后端)
 > **Agent Memory Key:** `vp-hermes`, `VisePanda`, `hermesapp.go2china.space`
 
@@ -47,15 +47,13 @@
 
 ### Key Design Decisions
 
-| Decision | Choice | Why |
-|----------|--------|-----|
-| Android UI | Jetpack Compose | 现代声明式 UI，与设计系统色板/字体直接对接 |
-| 后端 | FastAPI + Docker | 异步支持好，SSE 原生支持，PostgreSQL 成熟 |
-| 前端部署 | Vercel Serverless | 国内访问快，自动 HTTPS，rewrite 到 VPS 后端 |
-| API 通信 | Retrofit + OkHttp | Android 标准方案，SSE 支持好 |
-| 认证 | JWT (email+password) | 轻量，无第三方依赖 |
-| 管理后台 | React + Vite + pnpm | 轻量 SPA，管理后台专用 |
-| AI | DeepSeek V4 Flash (SSE) | 成本低，中文旅行内容好，流式输出快 |
+| 决策 | 选择 | 为何 |
+|------|------|------|
+| Android UI | Jetpack Compose | 现代声明式 UI，与设计系统对接 |
+| 后端 | FastAPI + Docker | 异步 SSE，PostgreSQL |
+| Android 来源 | visepanda-android-hermes (v0.2.6) | 更完整的屏幕实现 + 工作 APK |
+| 管理后台 | React + Vite + pnpm | Vercel 部署 |
+| AI | DeepSeek V4 Flash (SSE) | 成本低，中文旅行内容好 |
 
 ## 3. Current State
 
@@ -77,49 +75,48 @@
 - [x] 用户详情：查看 + 编辑 role/status
 - [x] Vercel auto-deploy on push
 
-**Android 客户端 (Jetpack Compose)**
-- [x] 项目结构：模块化架构（:app, :core:*, :feature:*）
-- [x] 模块划分：home/explore/city/chat/trips/tools/auth
-- [x] 网络层：Retrofit + OkHttp + SSE Client
-- [x] API 地址：已配置为生产环境 `hermesapp.go2china.space`
-- [x] Design System（色板/字体/间距 token 架构）
+**Android 客户端 (Jetpack Compose) — 从 visepanda-android-hermes v0.2.6 合并**
+- [x] Home/Chat/City/Map/Tools/Trips 全部屏幕 + ViewModel
+- [x] SSE 流式聊天 + Markdown 渲染
+- [x] Map 页面（osmdroid 中国全览 + 36城市标记）
+- [x] Tools 页面（工具箱网格）
+- [x] Trips DataStore 本地持久化
+- [x] API 地址：`hermesapp.go2china.space`
 - [x] GitHub Actions CI：自动编译 APK
 
-### ❌ 未完成（暂停原因）
+### ❌ 待完成
 
-- **Android APK 编译** — 本地 Android Studio 可编译（已配置 JDK 17 + AGP 8.2.2），但 GitHub Actions 构建因 `OkHttp 4.x MediaType.parse()` 弃用 API 报错（已修复），需要重新触发构建
-- VPS 内存不足（3.6GB，500MB 空闲），无法在服务器上编译 APK
-- 部分 UI 页面（Tools 子页面、Map 页面）未完成
+- **API 端点对齐** — Android 需 `/api/cities`、`/api/map`、`/api/tools`、`/api/config`，后端目前只有 `/api/destinations`
 
 ### 🐛 已知问题
 
-1. `OkHttp 4.12.0` 中 `MediaType.parse()` 已弃用，应使用 `toMediaTypeOrNull()` — **已修复**
-2. `Material Icons.Filled.Chat` 在 Compose 新版中弃用 — warning 级别，不影响编译
-3. VPS 只开放了 22/5432/8001 端口，新增服务需手动开安全组
-4. JWT_SECRET 当前为硬编码（`[REDACTED]`），生产需改为环境变量
+1. **API 端点不匹配** — Android 代码使用 `/api/cities`、`/api/map`、`/api/tools`、`/api/config`，vp-hermes FastAPI 后端只有 `/api/destinations`。需对齐。
+2. VPS 只开放了 22/5432/8001 端口，新增服务需手动开安全组
+3. JWT_SECRET 当前为硬编码，生产需改为环境变量
 
 ## 4. File Structure
 
 ```
-vp-hermes/
-├── android/                      # Android 原生客户端
-│   ├── app/                      # 主应用模块
-│   │   ├── build.gradle.kts      # App 构建配置
-│   │   └── src/                  # Compose UI + Navigation
-│   ├── core/
-│   │   ├── common/               # 公共工具类
-│   │   ├── designsystem/         # 色板/字体/间距 token
-│   │   └── network/              # ApiClient + SSE Client + DTO
-│   ├── feature/
-│   │   ├── auth/                 # 登录/注册/账号页面
-│   │   ├── home/                 # 首页
-│   │   ├── explore/              # 城市探索
-│   │   ├── city/                 # 城市详情
-│   │   ├── chat/                 # AI 对话
-│   │   ├── trips/                # 行程列表
-│   │   └── tools/                # 工具箱
-│   ├── gradle/libs.versions.toml # 版本目录
-│   └── settings.gradle.kts       # 模块注册
+vp-hermes-APK/
+├── android/                      # Android 原生客户端（从 visepanda-android-hermes 合并，v0.2.6）
+│   ├── app/src/
+│   │   ├── main/java/space/jtcao/visepanda/
+│   │   │   ├── data/api/          # ApiConfig, VisePandaApi, SseClient
+│   │   │   ├── data/model/        # ApiModels, ChatEvent, City, ToolData, Trip
+│   │   │   ├── data/repository/   # Chat/City/Map/Tools/Trip Repository
+│   │   │   ├── ui/home/           # HomeScreen + ViewModel
+│   │   │   ├── ui/chat/           # ChatScreen + ViewModel (SSE)
+│   │   │   ├── ui/cities/         # CityScreen + ViewModel
+│   │   │   ├── ui/map/            # MapScreen + ViewModel (osmdroid)
+│   │   │   ├── ui/tools/          # ToolsScreen + ViewModel
+│   │   │   ├── ui/trips/          # TripsScreen + ViewModel
+│   │   │   ├── ui/components/     # MarkdownText
+│   │   │   ├── ui/navigation/     # NavGraph, BottomNavBar, Routes
+│   │   │   └── ui/theme/          # Color, Theme, Type
+│   │   └── res/                   # 资源文件
+│   ├── build.gradle.kts
+│   ├── settings.gradle.kts
+│   └── gradle/                    # Gradle wrapper
 │
 ├── backend/                      # FastAPI 后端
 │   ├── app/
@@ -286,19 +283,15 @@ AdminPanel (React Router)
 ## 10. Next Steps
 
 ### 🔴 高优先级
-- **🎯 完成 APK 编译** — 本地电脑 `git pull` 后重新编译：`gradlew.bat assembleDebug`
-- 测试生产环境 API 连通性（手机装 APK 后验证登录+Chat+Trips）
+- **🎯 APK 编译** — `git pull` 后运行：`gradlew.bat assembleDebug`
+- 测试生产环境 API 连通性（手机装 APK 后验证 Chat+Map+Trips）
 
 ### 🟡 中优先级
 - VPS 上配置 `JWT_SECRET` 为环境变量（移除硬编码）
-- `open-notebook` 和 `surrealdb` 容器占用内存（~800MB），如不必要可停止
-- GitHub Actions `android-build.yml` 验证修复后的可编译状态
+- GitHub Actions 触发 APK 自动编译验证
 
 ### 🟢 低优先级
-- 补充 Android 端 Tools 子页面
-- Map 页面（osmdroid 集成）
 - 更新 Gradle 至 8.13+ 和 AGP 至更高版本
-- 迁移 WebSocket SSE 至 OkHttp 5.x
 
 ## 11. Troubleshooting
 

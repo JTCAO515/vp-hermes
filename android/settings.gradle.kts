@@ -1,10 +1,17 @@
 pluginManagement {
     repositories {
-        google()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
         mavenCentral()
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -14,15 +21,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "VisePanda"
-
 include(":app")
-include(":core:designsystem")
-include(":core:network")
-include(":core:common")
-include(":feature:home")
-include(":feature:explore")
-include(":feature:city")
-include(":feature:chat")
-include(":feature:trips")
-include(":feature:tools")
-include(":feature:auth")

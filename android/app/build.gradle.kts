@@ -1,35 +1,44 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "com.visepanda.app"
+    namespace = "space.jtcao.visepanda"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.visepanda.app"
-        minSdk = 26
+        applicationId = "space.jtcao.visepanda"
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "0.1.0"
-
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8000\"")
+        versionName = "3.0.8"
     }
 
     buildFeatures {
         compose = true
-        buildConfig = true
+        buildConfig = false
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -44,27 +53,42 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:designsystem"))
-    implementation(project(":core:network"))
-    implementation(project(":core:common"))
-    implementation(project(":feature:home"))
-    implementation(project(":feature:explore"))
-    implementation(project(":feature:city"))
-    implementation(project(":feature:chat"))
-    implementation(project(":feature:trips"))
-    implementation(project(":feature:tools"))
-    implementation(project(":feature:auth"))
+    // Core
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.activity.compose)
 
-    implementation(platform(libs.compose.bom))
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.graphics)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
-    implementation(libs.compose.material.icons)
-    implementation(libs.activity.compose)
-    implementation(libs.navigation.compose)
-    implementation(libs.lifecycle.runtime.compose)
-    implementation(libs.lifecycle.viewmodel.compose)
-    implementation(libs.core.ktx)
-    debugImplementation(libs.compose.ui.tooling)
+    // Compose
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+    debugImplementation(libs.androidx.ui.tooling)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Networking
+    implementation(libs.retrofit)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.retrofit.kotlinx.serialization)
+
+    // Image loading
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+
+    // Local storage
+    implementation(libs.androidx.datastore.preferences)
+
+    // Map
+    implementation(libs.osmdroid.android)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
 }
